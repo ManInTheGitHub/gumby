@@ -1,7 +1,7 @@
 Gumby
 =====
 
-Experiment runner framework for Dispersy and Tribler.
+Experiment runner framework for Dispersy, Tribler and various games.
 
 ## How to use it ##
 
