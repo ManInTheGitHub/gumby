@@ -84,9 +84,16 @@ class ResourceMonitor(object):
                         "write_bytes: 0\n",
                         "cancelled_write_bytes: 0\n",
                     ]
+                    netlines = [
+                            "TcpExt: SyncookiesSent SyncookiesRecv SyncookiesFailed EmbryonicRsts PruneCalled RcvPruned OfoPruned OutOfWindowIcmps LockDroppedIcmps ArpFilter TW TWRecycled TWKilled PAWSPassive PAWSActive PAWSEstab DelayedACKs DelayedACKLocked DelayedACKLost ListenOverflows ListenDrops TCPPrequeued TCPDirectCopyFromBacklog TCPDirectCopyFromPrequeue TCPPrequeueDropped TCPHPHits TCPHPHitsToUser TCPPureAcks TCPHPAcks TCPRenoRecovery TCPSackRecovery TCPSACKReneging TCPFACKReorder TCPSACKReorder TCPRenoReorder TCPTSReorder TCPFullUndo TCPPartialUndo TCPDSACKUndo TCPLossUndo TCPLostRetransmit TCPRenoFailures TCPSackFailures TCPLossFailures TCPFastRetrans TCPForwardRetrans TCPSlowStartRetrans TCPTimeouts TCPLossProbes TCPLossProbeRecovery TCPRenoRecoveryFail TCPSackRecoveryFail TCPSchedulerFailed TCPRcvCollapsed TCPDSACKOldSent TCPDSACKOfoSent TCPDSACKRecv TCPDSACKOfoRecv TCPAbortOnData TCPAbortOnClose TCPAbortOnMemory TCPAbortOnTimeout TCPAbortOnLinger TCPAbortFailed TCPMemoryPressures TCPSACKDiscard TCPDSACKIgnoredOld TCPDSACKIgnoredNoUndo TCPSpuriousRTOs TCPMD5NotFound TCPMD5Unexpected TCPSackShifted TCPSackMerged TCPSackShiftFallback TCPBacklogDrop TCPMinTTLDrop TCPDeferAcceptDrop IPReversePathFilter TCPTimeWaitOverflow TCPReqQFullDoCookies TCPReqQFullDrop TCPRetransFail TCPRcvCoalesce TCPOFOQueue TCPOFODrop TCPOFOMerge TCPChallengeACK TCPSYNChallenge TCPFastOpenActive TCPFastOpenPassive TCPFastOpenPassiveFail TCPFastOpenListenOverflow TCPFastOpenCookieReqd TCPSpuriousRtxHostQueues BusyPollRxPackets\n",
+                            "TcpExt: 0 0 2 0 0 0 0 0 0 0 42508 7 0 0 0 21 151364 39 2916 0 0 4557 8688 6079966 0 41037028 4250 262992 2869283 0 99 0 0 0 0 1 0 1 2 111 3 0 3 42 157 5 0 5593 671 327 0 11 0 0 3527 12 301 0 3157 3518 0 1121 0 0 0 0 0 185 5 0 0 0 0 1874 0 0 10866 0 0 0 0 4 1426256 237027 0 9 1063 1063 0 0 0 0 0 46 0\n",
+                            "IpExt: InNoRoutes InTruncatedPkts InMcastPkts OutMcastPkts InBcastPkts OutBcastPkts InOctets OutOctets InMcastOctets OutMcastOctets InBcastOctets OutBcastOctets InCsumErrors InNoECTPkts InECT1Pkts InECT0Pkts InCEPkts\n",
+                            "IpExt: 4 0 6 4 2539599 1635 64774715788 12521304092 264 642 437058800 184686 0 83858968 8 351 0\n",
+                            ]
                 else:
                     status = open('/proc/%s/stat' % pid, 'r').read()[:-1]  # Skip the newline
                     lines = open('/proc/%s/io' % pid, 'r').readlines()
+                    netlines = open('/proc/%s/net/netstat' % pid, 'r').readlines()
 
                 stats = [status]
                 for line in lines:
@@ -97,6 +104,13 @@ class ResourceMonitor(object):
                         print "Got exception while reading/splitting line:"
                         print e
                         print "Line contents are:", line
+                try:
+                    stats.append(netlines[1].split(': ')[1])
+                    stats.append(netlines[3].split(': ')[1])
+                except Exception as e:
+                    print "Got exception while reading/splitting line:"
+                    print e
+                    print "Line contents are:", line
                 yield ' '.join(stats)
 
             except IOError:

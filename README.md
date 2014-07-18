@@ -77,6 +77,14 @@ git clone https://github.com/Tribler/tribler
 gumby/run.py gumby/experiments/dispersy/allchannel.conf
 ls -R output/
 ```
+### Dependencies ###
+TODO
+Gumby depends on:
+
+- python-twisted
+- python-configobj
+- r-base-core
+- r-cran-ggplot2 r-cran-reshape r-cran-stringr r-cran-plyr
 
 ## Framework components ##
 

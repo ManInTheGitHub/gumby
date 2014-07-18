@@ -63,6 +63,8 @@ def parse_resource_files(input_directory, output_directory, start_timestamp):
     wchars = {}
     readbytes = {}
     writebytes = {}
+    outOctets = {}
+    inOctets = {}
 
     prev_stimes = {}
     prev_utimes = {}
@@ -71,6 +73,8 @@ def parse_resource_files(input_directory, output_directory, start_timestamp):
     prev_writebytes = {}
     prev_readbytes = {}
     prev_times = {}
+    prev_outOctets = {}
+    prev_inOctets = {}
 
     filename = 'resource_usage.log'
     for root, dirs, files in os.walk(input_directory):
@@ -136,6 +140,14 @@ def parse_resource_files(input_directory, output_directory, start_timestamp):
                 rchars[time].setdefault(nodename, []).append(rchars[time][pid])
                 wchars[time].setdefault(nodename, []).append(wchars[time][pid])
 
+                inBytes = long(parts[-11])
+                outBytes = long(parts[-10])
+
+                inOctets.setdefault(time, {})[pid] = calc_diff(time, prev_times.get(pid, time), inBytes, prev_inOctets(pid, inBytes)) / 1024.0
+                outOctets.setdefault(time, {})[pid] = calc_diff(time, prev_times.get(pid, time), outBytes, prev_outOctets.get(pid, outBytes)) / 1024.0
+                inOctets[time].setdefault(nodename, []).append(inOctets[time][pid])
+                outOctets[time].setdefault(nodename, []).append(outOctets[time][pid])
+
                 prev_utimes[pid] = utime
                 prev_stimes[pid] = stime
                 prev_rchar[pid] = rchar
@@ -143,6 +155,8 @@ def parse_resource_files(input_directory, output_directory, start_timestamp):
                 prev_readbytes[pid] = read_bytes
                 prev_writebytes[pid] = write_bytes
                 prev_times[pid] = time
+                prev_inOctets[pid] = inBytes
+                prev_outOctets[pid] = outBytes
 
     # some sanity checks
     nr_1utime = defaultdict(int)
@@ -168,9 +182,11 @@ def parse_resource_files(input_directory, output_directory, start_timestamp):
     write_records(all_pids, readbytes, output_directory, "readbytes.txt")
     write_records(all_pids, vsizes, output_directory, "vsizes.txt")
     write_records(all_pids, rsizes, output_directory, "rsizes.txt")
+    write_records(all_pids, inOctets, output_directory, "inBytes.txt")
+    write_records(all_pids, outOctets, output_directory, "outBytes.txt")
 
     # calculate sum for all nodes
-    for dictionary in [utimes, stimes, wchars, rchars, vsizes, rsizes, writebytes, readbytes]:
+    for dictionary in [utimes, stimes, wchars, rchars, vsizes, rsizes, writebytes, readbytes, inOctets, outOctets]:
         for time, values in dictionary.iteritems():
             for node in all_nodes:
                 if node in values:
@@ -185,6 +201,8 @@ def parse_resource_files(input_directory, output_directory, start_timestamp):
     write_records(all_nodes, readbytes, output_directory, "readbytes_node.txt")
     write_records(all_nodes, vsizes, output_directory, "vsizes_node.txt")
     write_records(all_nodes, rsizes, output_directory, "rsizes_node.txt")
+    write_records(all_nodes, inOctets, output_directory, "inBytes.txt")
+    write_records(all_nodes, outOctets, output_directory, "outBytes.txt")
 
 def main(input_directory, output_directory, start_time=0):
     parse_resource_files(input_directory, output_directory, start_time)
@@ -200,3 +218,4 @@ if __name__ == "__main__":
         main(argv[1], argv[2], int(argv[3]))
     else:
         main(argv[1], argv[2])
+
