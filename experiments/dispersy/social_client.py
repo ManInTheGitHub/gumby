@@ -43,8 +43,7 @@ from random import sample
 from sys import path as pythonpath
 from hashlib import sha1
 
-from gumby.experiments.dispersyclient import DispersyExperimentScriptClient, call_on_dispersy_thread, main, \
-    buffer_online
+from gumby.experiments.dispersyclient import DispersyExperimentScriptClient, main, buffer_online
 
 from twisted.python.log import msg
 
@@ -55,6 +54,7 @@ class SocialClient(DispersyExperimentScriptClient):
 
     def __init__(self, *argv, **kwargs):
         from Tribler.community.privatesocial.community import PoliSocialCommunity
+        from Tribler.community.privatesemantic.community import PSI_OVERLAP
         DispersyExperimentScriptClient.__init__(self, *argv, **kwargs)
         self.community_class = PoliSocialCommunity
 
@@ -68,21 +68,20 @@ class SocialClient(DispersyExperimentScriptClient):
         self.reconnect_to_friends = False
         self._mypref_db = None
 
+        self.monitor_friends_lc = None
+        self.prev_scenario_statistics = {}
+        self.prev_scenario_debug = {}
+
         self.friendhashes = {}
         self.friendiphashes = {}
-        self.foafhashes = {}
+        self.foafiphashes = {}
 
         self.set_community_kwarg('integrate_with_tribler', False)
         self.set_community_kwarg('encryption', False)
         self.set_community_kwarg('max_prefs', 100)
         self.set_community_kwarg('max_fprefs', 100)
-        self.set_community_kwarg('use_cardinality', False)
+        self.set_community_kwarg('psi_mode', PSI_OVERLAP)
         self.set_community_kwarg('log_text', self.log_text)
-
-    def start_dispersy(self):
-        DispersyExperimentScriptClient.start_dispersy(self)
-
-        self.community_args = (self._my_member,)
 
     def registerCallbacks(self):
         self.scenario_runner.register(self.insert_my_key, 'insert_my_key')
@@ -122,7 +121,6 @@ class SocialClient(DispersyExperimentScriptClient):
         else:
             raise RuntimeError("undefined class type, %s" % commtype)
 
-    @call_on_dispersy_thread
     def online(self):
         if self.peercache:
             yield 30.0
@@ -147,7 +145,6 @@ class SocialClient(DispersyExperimentScriptClient):
             self._community.create_msimilarity_request = lambda destination: False
         self.empty_buffer()
 
-    @call_on_dispersy_thread
     def offline(self):
         if self._community:
             self._mypref_db = self._community._mypref_db
@@ -173,16 +170,18 @@ class SocialClient(DispersyExperimentScriptClient):
 
             if ipport and key:
                 key = key.pub()
-                keyhash = long(sha1(self._crypto.key_to_bin(key)).hexdigest(), 16)
-                self._community._mypref_db.addMyPreference(keyhash, {})
-                self._community._friend_db.add_friend(str(peer_id), key, keyhash)
+                keyhash = self._crypto.key_to_hash(key)
+                keyhash_as_long = long(sha1(self._crypto.key_to_bin(key)).hexdigest(), 16)
+                self._community._mypref_db.addMyPreference(keyhash_as_long, {})
+                self._community._friend_db.add_friend(str(peer_id), key, keyhash_as_long)
 
-                self.friends.add(ipport)
-                self.friendhashes[peer_id] = keyhash
-                self.friendiphashes[ipport] = keyhash
-                self.not_connected_friends.add(ipport)
+                self.friends.add(keyhash)
+                self.friendhashes[peer_id] = keyhash_as_long
+                self.friendiphashes[ipport] = keyhash_as_long
 
-                self._dispersy.callback.persistent_register(u"monitor_friends", self.monitor_friends)
+                if not self.monitor_friends_lc:
+                    self.monitor_friends_lc = lc = LoopingCall(self.monitor_friends)
+                    lc.start(5.0, now=True)
 
             elif ipport:
                 print >> sys.stderr, "Got ip/port, but not key?", peer_id
@@ -196,12 +195,17 @@ class SocialClient(DispersyExperimentScriptClient):
 
             # if we don't get the ipport, then this peer isn't deployed to the das
             ipport = self.get_peer_ip_port_by_id(peer_id)
-            if ipport:
-                self.foafs.add(ipport)
-                self.foafhashes[ipport] = [self.friendhashes[peer_id] for peer_id in his_friends if peer_id in self.friendhashes]
-                self.not_connected_foafs.add(ipport)
+            key = self.get_private_keypair_by_id(peer_id)
 
-                self._dispersy.callback.persistent_register(u"monitor_friends", self.monitor_friends)
+            if ipport:
+                key = key.pub()
+                keyhash = self._crypto.key_to_hash(key)
+                self.foafs.add(keyhash)
+                self.foafiphashes[ipport] = [self.friendhashes[peer_id] for peer_id in his_friends if peer_id in self.friendhashes]
+
+                if not self.monitor_friends_lc:
+                    self.monitor_friends_lc = lc = LoopingCall(self.monitor_friends)
+                    lc.start(5.0, now=True)
 
     @buffer_online
     def send_post(self, peer_id, nr_messages=1):
@@ -213,8 +217,8 @@ class SocialClient(DispersyExperimentScriptClient):
 
     @buffer_online
     def connect_to_friends(self):
-        friendsaddresses = self.friends
-        foafsaddresses = self.foafs
+        friendsaddresses = self.friendiphashes.keys()
+        foafsaddresses = self.foafiphashes.keys()
 
         if self.peercache:
             if self.nocache:
@@ -229,7 +233,7 @@ class SocialClient(DispersyExperimentScriptClient):
             self._community._peercache.add_peer(my_hashes + [self.friendiphashes[ipport], ], *ipport)
 
         for ipport in foafsaddresses:
-            self._community._peercache.add_peer(self.foafhashes[ipport], *ipport)
+            self._community._peercache.add_peer(self.foafiphashes[ipport], *ipport)
 
         # use peercache to connect to friends
         self._community.connect_to_peercache(sys.maxint)
@@ -240,47 +244,40 @@ class SocialClient(DispersyExperimentScriptClient):
         self.reconnect_to_friends = True
 
     def log_text(self, key, sock_addr, **kwargs):
-        kwargs['from_friend'] = sock_addr in self.friends
-        kwargs['from_foaf'] = sock_addr in self.foafs
+        kwargs['from_friend'] = sock_addr in self.friendiphashes
+        kwargs['from_foaf'] = sock_addr in self.foafiphashes
         kwargs['sock_addr'] = sock_addr
 
         self.print_on_change(key, {}, kwargs)
 
     def monitor_friends(self):
-        prev_scenario_statistics = {}
-        prev_scenario_debug = {}
+        connected_friends = 0
+        indirectly_connected_friends = 0
+        for mid in self.friends:
+            if self._community and self._community.is_taste_buddy_mid(mid):
+                connected_friends += 1
+            if self._community and self._community.is_overlapping_taste_buddy_mid(mid):
+                indirectly_connected_friends += 1
 
-        while True:
-            for sock_addr in self.friends:
-                if self._community.is_taste_buddy_sock(sock_addr) if self._community else False:
-                    if sock_addr in self.not_connected_friends:
-                        self.not_connected_friends.remove(sock_addr)
-                else:
-                    self.not_connected_friends.add(sock_addr)
+        connected_foafs = 0
+        for mid in self.foafs:
+            if self._community and self._community.is_taste_buddy_mid(mid):
+                connected_foafs += 1
 
-            for sock_addr in self.foafs:
-                if self._community.is_taste_buddy_sock(sock_addr) if self._community else False:
-                    if sock_addr in self.not_connected_foafs:
-                        self.not_connected_foafs.remove(sock_addr)
-                else:
-                    self.not_connected_foafs.add(sock_addr)
+        if self.friends:
+            bootstrapped = connected_friends / float(len(self.friends))
+            indirect_bootstrapped = indirectly_connected_friends / float(len(self.friends))
+        else:
+            bootstrapped = 0
 
-            if self.friends:
-                connected_friends = len(self.friends) - len(self.not_connected_friends)
-                bootstrapped = connected_friends / float(len(self.friends))
-            else:
-                bootstrapped = 0
+        if self.foafs:
+            bootstrapped_foafs = connected_foafs / float(len(self.foafs))
+        else:
+            bootstrapped_foafs = 0
 
-            if self.foafs:
-                connected_foafs = len(self.foafs) - len(self.not_connected_foafs)
-                bootstrapped_foafs = connected_foafs / float(len(self.foafs))
-            else:
-                bootstrapped_foafs = 0
-
-            prev_scenario_statistics = self.print_on_change("scenario-statistics", prev_scenario_statistics, {'bootstrapped': bootstrapped, 'bootstrapped_foafs': bootstrapped_foafs})
-            if self._community:
-                prev_scenario_debug = self.print_on_change("scenario-debug", prev_scenario_debug, {'not_connected':list(self.not_connected_friends), 'create_time_encryption':self._community.create_time_encryption, 'create_time_decryption':self._community.create_time_decryption, 'receive_time_encryption':self._community.receive_time_encryption})
-            yield 5.0
+        self.prev_scenario_statistics = self.print_on_change("scenario-statistics", self.prev_scenario_statistics, {'bootstrapped': bootstrapped, 'bootstrapped_foafs': bootstrapped_foafs, 'indirect_bootstrapped':indirect_bootstrapped})
+        if self._community:
+            self.prev_scenario_debug = self.print_on_change("scenario-debug", self.prev_scenario_debug, {'create_time_encryption':self._community.create_time_encryption, 'create_time_decryption':self._community.create_time_decryption, 'receive_time_encryption':self._community.receive_time_encryption})
 
 if __name__ == '__main__':
     SocialClient.scenario_file = environ.get('SCENARIO_FILE', 'social.scenario')

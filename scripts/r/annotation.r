@@ -5,15 +5,12 @@ load_annotations <- function(){
 		df2 <- melt(df2)
 		df2 <- na.omit(df2)
 		df2 <- ddply(df2, .(annotation), summarise, meanx = mean(value), minx = min(value), maxx = max(value))
-		df2$linesize <- as.integer((df2$maxx - df2$minx) / 2)
-		df2$linesize <- as.numeric(lapply(df2$linesize, FUN = function(x) {max(x, 1)}))
-		df2$linepos <- df2$minx + df2$linesize
 		df2$show_mean <- show_mean
 
 		if(length(args) > 0){
-			df2$labelpos <- df2$maxx + max((maxX - minX) / 66, 1)
+			df2$labelpos <- df2$minx + max((maxX - minX) / 66, 1)
 		} else {
-			df2$labelpos <- df2$linepos
+			df2$labelpos <- df2$minx + 1
 		}
 
 		return(df2)
@@ -42,10 +39,12 @@ add_annotations <- function(p, df, df2){
 
 mean_max_min <- function(num_columns, df){
 	if (num_columns > 1000){
-		tdf <- cbind(df['time'], t(apply(df[,3:ncol(df)], 1, summary)))
+		tdf <- cbind(df['time'], t(apply(df[,2:ncol(df)], 1, function(x) summary(na.omit(x)))))
 		colnames(tdf) <- c('time', 'min', 'Q1', 'median', 'mean','Q3', 'max')
 		return(tdf)
 	} else {
-		return(melt(df, id="time"))
+		tdf <- melt(df, id="time")
+		tdf <- na.omit(tdf)
+		return(tdf)
 	}
 }

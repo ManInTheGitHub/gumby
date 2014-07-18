@@ -36,15 +36,14 @@
 #
 
 # Code:
-import sys
 from os import path, environ
 from sys import path as pythonpath
 from hashlib import sha1
 
-from gumby.experiments.dispersyclient import DispersyExperimentScriptClient, call_on_dispersy_thread, main, \
-    buffer_online
+from gumby.experiments.dispersyclient import DispersyExperimentScriptClient, main
 
 from twisted.python.log import msg
+from twisted.internet.task import LoopingCall
 
 # TODO(emilon): Fix this crap
 pythonpath.append(path.abspath(path.join(path.dirname(__file__), '..', '..', '..', "./tribler")))
@@ -56,18 +55,21 @@ class MetadataClient(DispersyExperimentScriptClient):
         DispersyExperimentScriptClient.__init__(self, *argv, **kwargs)
         self.community_class = MetadataCommunity
 
+        self.log_statistics_lc = None
+        self.prev_scenario_statistics = {}
+
         self.set_community_kwarg('integrate_with_tribler', False)
 
     def registerCallbacks(self):
         self.scenario_runner.register(self.insert_metadata, 'insert_metadata')
 
-    @call_on_dispersy_thread
     def online(self):
         DispersyExperimentScriptClient.online(self)
 
-        self._dispersy.callback.persistent_register(u"log_statistics", self.log_statistics)
+        if not self.log_statistics_lc:
+            self.log_statistics_lc = lc = LoopingCall(self.log_statistics)
+            lc.start(5.0, now=True)
 
-    @call_on_dispersy_thread
     def insert_metadata(self, infohash_data="", roothash_data="", amount=1):
         amount = int(amount)
         for _ in xrange(amount):
@@ -80,15 +82,10 @@ class MetadataClient(DispersyExperimentScriptClient):
             self._community.create_metadata_message(infohash, roothash, data_list)
 
     def log_statistics(self):
-        prev_scenario_statistics = {}
+        all_metadata_msg = self._community._metadata_db.getAllMetadataMessage()
+        metadata_msg_count = len(all_metadata_msg)
 
-        while True:
-            all_metadata_msg = self._community._metadata_db.getAllMetadataMessage()
-            metadata_msg_count = len(all_metadata_msg)
-
-            prev_scenario_statistics = self.print_on_change("scenario-statistics", prev_scenario_statistics, {"metadata_msg_count": metadata_msg_count})
-
-            yield 5.0
+        self.prev_scenario_statistics = self.print_on_change("scenario-statistics", self.prev_scenario_statistics, {"metadata_msg_count": metadata_msg_count})
 
 
 if __name__ == '__main__':

@@ -43,7 +43,7 @@ def write_records(all_nodes, sum_records, output_directory, outputfile, diffoutp
             fp2.close()
 
 
-def parse_resource_files(input_directory, output_directory, start_timestamp):
+def parse_resource_files(input_directory, output_directory, start_timestamp=None):
     def calc_diff(curtime, prevtime, curvalue, prevvalue):
         diff = curvalue - prevvalue
         diff_in_log = curtime - prevtime
@@ -51,6 +51,8 @@ def parse_resource_files(input_directory, output_directory, start_timestamp):
         if diff_in_log:
             return float(diff) / diff_in_log
         return 0
+
+    max_timestamp = 0
 
     all_pids = set()
     all_nodes = []
@@ -98,6 +100,9 @@ def parse_resource_files(input_directory, output_directory, start_timestamp):
             for line in h_records:
                 parts = line.split()
 
+                if start_timestamp == None:
+                    start_timestamp = float(parts[0])
+                max_timestamp = max(max_timestamp, float(parts[0]))
                 time = float(parts[0]) - start_timestamp
                 pid = nodename + "_" + parts[2][1:-1] + "_" + parts[1]
 
@@ -129,8 +134,8 @@ def parse_resource_files(input_directory, output_directory, start_timestamp):
                 readbytes[time].setdefault(nodename, []).append(readbytes[time][pid])
                 writebytes[time].setdefault(nodename, []).append(writebytes[time][pid])
 
-                # syscw = long(parts[-4])
-                # syscr = long(parts[-5])
+                # syscw = long(parts[48])
+                # syscr = long(parts[47])
 
                 wchar = long(parts[-6])
                 rchar = long(parts[-7])
@@ -204,7 +209,11 @@ def parse_resource_files(input_directory, output_directory, start_timestamp):
     write_records(all_nodes, inOctets, output_directory, "inBytes.txt")
     write_records(all_nodes, outOctets, output_directory, "outBytes.txt")
 
-def main(input_directory, output_directory, start_time=0):
+    print "XMIN=%d" % 0
+    print "XMAX=%d" % (max_timestamp - start_timestamp)
+    print "XSTART=%d" % start_timestamp
+
+def main(input_directory, output_directory, start_time=None):
     parse_resource_files(input_directory, output_directory, start_time)
 
 if __name__ == "__main__":
