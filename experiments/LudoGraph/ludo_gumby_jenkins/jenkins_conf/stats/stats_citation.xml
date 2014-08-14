@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- INPUT and OUTPUT are being overwritten by Pregel_XML_DEBUG_DRIVER, have internal final input/output -->
+<configuration>
+    <property>
+        <name>ludograph.job.program</name>
+	<value>org.tudelft.ludograph.mock.debug.pregel.Stats_TTTT</value>
+        <description>Program executed for each PU</description>
+    </property>
+    
+    <property>
+        <name>stats.aggregatePu</name>
+	<value>4949326</value>
+	<description>End user arg for the program (BFS)</description>
+    </property>
+
+    <!--
+        I/O
+    -->
+    <!--
+        ### INPUT ###
+    -->
+    <property>
+        <name>ludograph.input.format.class</name>
+        <value>org.tudelft.ludograph.io.hdfs.input.GenericHDFSInputFormat</value>
+        <description>Class specifies "how to read" data from underlying storage.</description>
+    </property>
+
+    <property>
+        <name>ludograph.input.record.reader.class</name>
+        <value>org.tudelft.ludograph.io.hdfs.input.DirectedVertexEncodedRecordReader</value>
+        <description>Class defines how to single record (including record markers), also is responsible for seeking records etc.</description>
+    </property>
+
+    <property>
+        <name>ludograph.input.stream.class</name>
+        <value>java.io.DataInputStream</value>
+        <description>
+            * Simple validation test *
+            Stream class which is used during read process. HAS TO implement DataOut, Closeable interfaces (this is checked during runtime).
+        </description>
+    </property>
+
+    <property>
+        <name>ludograph.input.dfs.path</name>
+<------><value>/Citation_FCF_TTTT</value>
+        <description>Input dataset path (either single file of dir)</description>
+    </property>
+    
+    <!--
+        #### OUTPUT ###
+    -->
+    <property>
+        <name>ludograph.output.format.class</name>
+        <value>org.tudelft.ludograph.io.hdfs.output.GenericHDFSOutputFormat</value>
+        <description>Class specifies "how to write" data to underlying storage.</description>
+    </property>
+
+    <property>
+        <name>ludograph.output.record.writer.class</name>
+        <value>org.tudelft.ludograph.io.hdfs.output.DirectedVertexEncodedRecordWriter</value>
+        <description></description>
+    </property>
+
+    <property>
+        <name>ludograph.output.stream.class</name>
+        <value>java.io.DataOutputStream</value>
+        <description>
+            * Simple validation test *
+            Stream class which is used during read process. HAS TO implement DataOut, Closeable interfaces (this is checked during runtime).
+        </description>
+    </property>
+
+    <property>
+        <name>ludograph.output.dfs.path</name>
+        <value>/user/alien01/output</value>
+        <description>Output path</description>
+    </property>
+
+    <!--
+        CHECKPOINT
+        todo repartition will be directly serialized to MSGS and send
+    -->
+    <property>
+        <name>ludograph.debug.checkpoint</name>
+        <value>false</value>
+        <description>boolean: Perform Checkpoint validation test (completely trans[arent for PROGRAM)</description>
+    </property>
+
+    <property>
+        <name>ludograph.checkpoint.input.format.class</name>
+        <value>org.tudelft.ludograph.io.hdfs.input.GenericHDFSInputFormat</value>
+        <description>Class specifies "how to read" stored checkpoint from underlying storage (storage may be different then one used for input).</description>
+    </property>
+
+    <property>
+        <name>ludograph.checkpoint.record.reader.class</name>
+        <value>org.tudelft.ludograph.io.hdfs.checkpoint.input.DirectedVertexEncodedCheckpointRecordReader</value>
+        <description>Class defines how to read single checkpoint record (including record markers), also is responsible for seeking records etc.</description>
+    </property>
+
+    <property>
+        <name>ludograph.checkpoint.input.stream.class</name>
+        <value>java.io.DataInputStream</value>
+        <description>Stream class which is used during checkpoint read process. HAS TO implement DataOut, Closeable interfaces (this is checked during runtime).</description>
+    </property>
+
+    <property>
+        <name>ludograph.checkpoint.output.format.class</name>
+        <value>org.tudelft.ludograph.io.hdfs.output.GenericHDFSOutputFormat</value>
+        <description>Class specifies "how to write" checkpoints to underlying storage (storage may be different then one used for input).</description>
+    </property>
+
+    <property>
+        <name>ludograph.checkpoint.record.writer.class</name>
+        <value>org.tudelft.ludograph.io.hdfs.checkpoint.output.DirectedVertexEncodedCheckpointRecordWriter</value>
+        <description>Class defines how to store single checkpoint record (including record markers).</description>
+    </property>
+
+    <property>
+        <name>ludograph.checkpoint.output.stream.class</name>
+        <value>java.io.DataOutputStream</value>
+        <description>Stream class which is used during checkpoint write process. HAS TO implement DataOut, Closeable interfaces (this is checked during runtime).</description>
+    </property>
+
+</configuration>
