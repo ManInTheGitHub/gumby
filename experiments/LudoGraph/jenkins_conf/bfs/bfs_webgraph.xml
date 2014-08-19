@@ -3,11 +3,17 @@
 
 <!-- INPUT and OUTPUT are being overwritten by Pregel_XML_DEBUG_DRIVER, have internal final input/output -->
 <configuration>
-    <property>
-        <name>ludograph.job.program</name>
-	<value>org.tudelft.ludograph.mock.debug.pregel.BFS_TTTT</value>
-        <description>Program executed for each PU</description>
-    </property>
+	<property>
+		<name>ludograph.job.program</name>
+		<value>org.tudelft.ludograph.mock.debug.pregel.BFS_TTTT</value>
+		<description>Program executed for each PU</description>
+	</property>
+
+	<property>
+		<name>ludograph.debug.gumby</name>
+		<value>false</value>
+		<description>"Wraps" job execution in gumby.</description>
+	</property>
 
     <!--
         I/O
