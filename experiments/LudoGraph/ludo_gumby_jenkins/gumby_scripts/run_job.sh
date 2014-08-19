@@ -4,17 +4,17 @@
 
 set -e
 
-# read reserved hosts array                                                                                                                                                                   
-hosts=($RESERVED_HOSTS)                                                                                                                                                                       
-hostsLn=${#hosts[@]}                                                                                                                                                                          
-                                                                                                                                                                                              
-# create settings                                                                                                                                                                             
-. ./jenkinsSettings.sh                                                                                                                                                                        
-                                                                                                                                                                                              
-# clean masters and slaves (Hadoop required files)                                                                                                                                            
-cat /dev/null > $HADOOP_CONF/masters                                                                                                                                                          
-cat /dev/null > $HADOOP_CONF/slaves                                                                                                                                                           
-                                                                                                                                                                                              
+# read reserved hosts array
+hosts=($RESERVED_HOSTS)
+hostsLn=${#hosts[@]}
+
+# create settings
+. ./jenkinsSettings.sh
+
+# clean masters and slaves (Hadoop required files)
+cat /dev/null > $HADOOP_CONF/masters
+cat /dev/null > $HADOOP_CONF/slaves
+
 # create masters and slaves (Hadoop required files)
 for (( i=0; i<$hostsLn; i++ ))
 do
@@ -100,9 +100,9 @@ case "$Dataset" in
                 conf="jenkins_conf/stats/stats_citation.xml"
             ;;
             (*)
-                echo "Unknown Algorithm: $Algorithm crashing!"                                                                                                                                
-                exit 1                                                                                                                                                                        
-            ;;                                                                                                                                                                                
+                echo "Unknown Algorithm: $Algorithm crashing!"
+                exit 1
+            ;;
         esac
     ;;
     ("Webgraph")
@@ -126,9 +126,9 @@ case "$Dataset" in
                 conf="jenkins_conf/stats/stats_webgraph.xml"
             ;;
             (*)
-                echo "Unknown Algorithm: $Algorithm crashing!"                                                                                                                                
-                exit 1                                                                                                                                                                        
-            ;;                                                                                                                                                                                
+                echo "Unknown Algorithm: $Algorithm crashing!"
+                exit 1
+            ;;
         esac
     ;;
     ("WikiTalk")
@@ -152,9 +152,9 @@ case "$Dataset" in
                 conf="jenkins_conf/stats/stats_wikitalk.xml"
             ;;
             (*)
-                echo "Unknown Algorithm: $Algorithm crashing!"                                                                                                                                
-                exit 1                                                                                                                                                                        
-            ;;                                                                                                                                                                                
+                echo "Unknown Algorithm: $Algorithm crashing!"
+                exit 1
+            ;;
         esac
     ;;
     (*) 
@@ -170,38 +170,39 @@ esac
 ./jenkinsClient.sh jar ../LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar org.tudelft.ludograph.mock.debug.pregel.Pregel_XML_DEBUG_DRIVER_v2 ../LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar 10 10000 10000 das4 $conf $Master
 
 # ---- "BLOCKING CLIENT" ----
-#get jobID                                                                                                                                                                                    
-line=`./jenkinsListJobs.sh 2>/dev/null | sed -n -e '4{p;q}'`                                                                                                                                  
-jobID=( $line )                                                                                                                                                                               
-echo "jobID: $jobID"                                                                                                                                                                          
-                                                                                                                                                                                              
-while [ "$isTerminated" = false ]                                                                                                                                                             
-do                                                                                                                                                                                            
-    sleep 1                                                                                                                                                                                   
-    jobsActive=`./jenkinsListJobs.sh 2>/dev/null | wc -l`                                                                                                                                     
-                                                                                                                                                                                              
-    # check if job is still active                                                                                                                                                            
-    if [ "$jobsActive" -eq "3" ]                                                                                                                                                              
-    then                                                                                                                                                                                      
-<------>isTerminated=true                                                                                                                                                                     
-    fi                                                                                                                                                                                        
-                                                                                                                                                                                              
-    #check timeout                                                                                                                                                                            
-    timestamp="$(date +%s)"                                                                                                                                                                   
-    jobDuration="$(($timestamp-T_S))"                                                                                                                                                         
-    if [ "$jobDuration" -gt "$timeout" ]                                                                                                                                                      
-    then                                                                                                                                                                                      
-<------>echo "JOB TIMEOUT !!! (terminating)"                                                                                                                                                  
-<------>isTerminated=true                                                                                                                                                                     
-    fi                                                                                                                                                                                        
-done                                                                                                                                                                                          
-                                                                                                                                                                                              
-T_E="$(date +%s)"                                                                                                                                                                             
-                                                                                                                                                                                              
-echo "Job FINISHED"                                                                                                                                                                           
-T_F="$(($T_E-T_S))"                                                                                                                                                                           
-echo "Turn Around Time in seconds: ${T_F} INACCURATE WITH YARN TIME -> use YARN TIME"                                                                                                         
-                                                                                                                                                                                              
-# Determine job OUTCOME.                                                                                                                                                                      
-outcome=`./jenkinsAppStatus.sh $jobID 2>/dev/null | sed -n -e '11{p;q}' | awk '{print $3}'`                                                                                                   
+#get jobID
+line=`./jenkinsListJobs.sh 2>/dev/null | sed -n -e '4{p;q}'`
+jobID=( $line )
+echo "jobID: $jobID"
+
+while [ "$isTerminated" = false ]
+do
+    sleep 1
+    jobsActive=`./jenkinsListJobs.sh 2>/dev/null | wc -l`
+
+    # check if job is still active
+    if [ "$jobsActive" -eq "3" ]
+    then
+		isTerminated=true
+    fi
+
+    #check timeout
+    timestamp="$(date +%s)"
+    jobDuration="$(($timestamp-T_S))"
+    if [ "$jobDuration" -gt "$timeout" ]
+    then
+		echo "JOB TIMEOUT !!! (terminating)"
+		isTerminated=true
+    fi
+done
+
+T_E="$(date +%s)"
+
+echo "Job FINISHED"
+T_F="$(($T_E-T_S))"
+echo "Turn Around Time in seconds: ${T_F} INACCURATE WITH YARN TIME -> use YARN TIME"
+
+# Determine job OUTCOME.
+outcome=`./jenkinsAppStatus.sh $jobID 2>/dev/null | sed -n -e '11{p;q}' | awk '{print $3}'`
 echo "JOB result: $outcome"
+
