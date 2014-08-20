@@ -5,6 +5,8 @@ CONF=$2
 echo "$HADOOP_HOME"
 echo "$CONF"
 
+export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
+
 echo "@@@ FORMAT NameNode @@@"
 $HADOOP_HOME/bin/hadoop --config $CONF namenode -format
 
