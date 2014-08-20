@@ -54,6 +54,7 @@ export RESERVED_HOSTS=${adrs[*]}
 echo Allocated nodes: ${RESERVED_HOSTS[*]}
 
 echo "Running JOB"
+cd gumby/experiments/LudoGraph/ludo_gumby_jenkins/gumby_scripts/
 . ./$2
 
 echo "STOPPING cluster"
