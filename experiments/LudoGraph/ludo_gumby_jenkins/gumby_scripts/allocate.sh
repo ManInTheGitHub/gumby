@@ -5,7 +5,9 @@ set -e
 # check for number of nodes
 if [ $# -eq 0 ] 
   then
-    echo "Number of computational nodes required"
+    echo "1 - Number of computational nodes required."
+    echo "2 - run_job script required."
+    echo "3 - clean-up script required."
     exit
 fi
 
@@ -13,7 +15,8 @@ fi
 module load prun
 
 # request nodes
-preserve -np $1 -t 72:20:00
+jobId=`preserve -np $1 -t 72:20:00 | awk 'NR==1 {print $3}' |  rev | cut -c 2- | rev`
+echo "JobId: $jobId"
 sleep 5
 
 # get hosts array
@@ -49,3 +52,9 @@ done
 
 export RESERVED_HOSTS=${adrs[*]}
 echo Allocated nodes: ${RESERVED_HOSTS[*]}
+
+echo "Running JOB"
+. ./$2
+
+echo "STOPPING cluster"
+. ./$3

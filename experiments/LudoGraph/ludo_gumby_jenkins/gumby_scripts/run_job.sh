@@ -56,6 +56,8 @@ case "$Dataset" in
     ("Amazon_302")
         # for now fetching from mbiczak's home -> future @Large?
         dataset_file="/home/mbiczak/Ludo_Yarn/datasets/directed/amazon.302_FCF_TTTT"
+        NODES="15"
+        echo "USING 15 workers"
         case "$Algorithm" in
             ("BFS") 
                 echo "Using bfs_amazon_302.xml"
@@ -82,6 +84,8 @@ case "$Dataset" in
     ("Citation")
         # for now fetching from mbiczak's home -> future @Large?
         dataset_file="/home/mbiczak/Ludo_Yarn/datasets/directed/Citation_FCF_TTTT"
+        NODES="10"
+        echo "USING 10 workers"
         case "$Algorithm" in
             ("BFS")
                 echo "Using bfs_citation.xml"
@@ -108,6 +112,8 @@ case "$Dataset" in
     ("Webgraph")
         # for now fetching from mbiczak's home -> future @Large?
         dataset_file="/home/mbiczak/Ludo_Yarn/datasets/directed/WebGraph_FCF_TTTT"
+        NODES="10"
+        echo "USING 10 workers"
         case "$Algorithm" in
             ("BFS")
                 echo "Using bfs_webgraph.xml"
@@ -134,6 +140,8 @@ case "$Dataset" in
     ("WikiTalk")
         # for now fetching from mbiczak's home -> future @Large?
         dataset_file="/home/mbiczak/Ludo_Yarn/datasets/directed/WikiTalk_FCF_TTTT"
+        NODES="10"
+        echo "USING 10 workers"
         case "$Algorithm" in
             ("BFS")
                 echo "Using bfs_wikitalk.xml"
@@ -167,7 +175,7 @@ esac
 /jenkinsClient.sh dfs -copyFromLocal $dataset_file / 
 
 # run client
-./jenkinsClient.sh jar ../LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar org.tudelft.ludograph.mock.debug.pregel.Pregel_XML_DEBUG_DRIVER_v2 ../LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar 10 10000 10000 das4 $conf $Master
+./jenkinsClient.sh jar ../LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar org.tudelft.ludograph.mock.debug.pregel.Pregel_XML_DEBUG_DRIVER_v2 ../LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar $NODES 10000 10000 das4 $conf $Master
 
 # ---- "BLOCKING CLIENT" ----
 #get jobID
