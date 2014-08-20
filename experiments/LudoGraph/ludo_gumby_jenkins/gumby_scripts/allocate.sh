@@ -14,6 +14,9 @@ fi
 # load proper module
 module load prun
 
+# clean up previous run left overs (if any)
+qdel -u $USER
+
 # request nodes
 jobId=`preserve -np $1 -t 72:20:00 | awk 'NR==1 {print $3}' |  rev | cut -c 2- | rev`
 echo "JobId: $jobId"

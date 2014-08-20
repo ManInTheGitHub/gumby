@@ -172,7 +172,7 @@ case "$Dataset" in
 esac
 
 # upload data
-/jenkinsClient.sh dfs -copyFromLocal $dataset_file / 
+./jenkinsClient.sh dfs -copyFromLocal $dataset_file / 
 
 # run client
 ./jenkinsClient.sh jar ../LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar org.tudelft.ludograph.mock.debug.pregel.Pregel_XML_DEBUG_DRIVER_v2 ../LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar $NODES 10000 10000 das4 $conf $Master
