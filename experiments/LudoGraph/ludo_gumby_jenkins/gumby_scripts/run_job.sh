@@ -61,19 +61,19 @@ case "$Dataset" in
         case "$Algorithm" in
             ("BFS") 
                 echo "Using bfs_amazon_302.xml"
-                conf="jenkins_conf/bfs/bfs_amazon_302.xml"
+                conf="../jenkins_conf/bfs/bfs_amazon_302.xml"
              ;;
             ("Communities") 
                 echo "Using community_amazon_302.xml"
-                conf="jenkins_conf/communities/community_amazon_302.xml"
+                conf="../jenkins_conf/communities/community_amazon_302.xml"
             ;;
             ("Components")
                 echo "Using components_amazon_302.xml"
-                conf="jenkins_conf/components/components_amazon_302.xml"
+                conf="../jenkins_conf/components/components_amazon_302.xml"
             ;;
             ("Statistics") 
                 echo "Using stats_amazon_302.xml"
-                conf="jenkins_conf/stats/stats_amazon_302.xml"
+                conf="../jenkins_conf/stats/stats_amazon_302.xml"
             ;;
             (*) 
                 echo "Unknown Algorithm: $Algorithm crashing!"
@@ -89,19 +89,19 @@ case "$Dataset" in
         case "$Algorithm" in
             ("BFS")
                 echo "Using bfs_citation.xml"
-                conf="jenkins_conf/bfs/bfs_citation.xml"
+                conf="../jenkins_conf/bfs/bfs_citation.xml"
             ;;
             ("Communities")
                 echo "Using community_citation.xml"
-                conf="jenkins_conf/communities/community_citation.xml"
+                conf="../jenkins_conf/communities/community_citation.xml"
             ;;
             ("Components")
                 echo "Using components_citation.xml"
-                conf="jenkins_conf/components/components_citation.xml"
+                conf="../jenkins_conf/components/components_citation.xml"
             ;;
             ("Statistics")
                 echo "Using stats_citation.xml"
-                conf="jenkins_conf/stats/stats_citation.xml"
+                conf="../jenkins_conf/stats/stats_citation.xml"
             ;;
             (*)
                 echo "Unknown Algorithm: $Algorithm crashing!"
@@ -117,19 +117,19 @@ case "$Dataset" in
         case "$Algorithm" in
             ("BFS")
                 echo "Using bfs_webgraph.xml"
-                conf="jenkins_conf/bfs/bfs_webgraph.xml"
+                conf="../jenkins_conf/bfs/bfs_webgraph.xml"
             ;;
             ("Communities")
                 echo "Using community_webgraph.xml"
-                conf="jenkins_conf/communities/community_webgraph.xml"
+                conf="../jenkins_conf/communities/community_webgraph.xml"
             ;;
             ("Components")
                 echo "Using components_webgraph.xml"
-                conf="jenkins_conf/components/components_webgraph.xml"
+                conf="../jenkins_conf/components/components_webgraph.xml"
             ;;
             ("Statistics")
                 echo "Using stats_webgraph.xml"
-                conf="jenkins_conf/stats/stats_webgraph.xml"
+                conf="../jenkins_conf/stats/stats_webgraph.xml"
             ;;
             (*)
                 echo "Unknown Algorithm: $Algorithm crashing!"
@@ -145,19 +145,19 @@ case "$Dataset" in
         case "$Algorithm" in
             ("BFS")
                 echo "Using bfs_wikitalk.xml"
-                conf="jenkins_conf/bfs/bfs_wikitalk.xml"
+                conf="../jenkins_conf/bfs/bfs_wikitalk.xml"
             ;;
             ("Communities")
                 echo "Using community_wikitalk.xml"
-                conf="jenkins_conf/communities/community_wikitalk.xml"
+                conf="../jenkins_conf/communities/community_wikitalk.xml"
             ;;
             ("Components")
                 echo "Using components_wikitalk.xml"
-                conf="jenkins_conf/components/components_wikitalk.xml"
+                conf="../jenkins_conf/components/components_wikitalk.xml"
             ;;
             ("Statistics")
                 echo "Using stats_wikitalk.xml"
-                conf="jenkins_conf/stats/stats_wikitalk.xml"
+                conf="../jenkins_conf/stats/stats_wikitalk.xml"
             ;;
             (*)
                 echo "Unknown Algorithm: $Algorithm crashing!"
@@ -175,7 +175,7 @@ esac
 ./jenkinsClient.sh dfs -copyFromLocal $dataset_file / 
 
 # run client
-./jenkinsClient.sh jar ../LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar org.tudelft.ludograph.mock.debug.pregel.Pregel_XML_DEBUG_DRIVER_v2 ../LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar $NODES 10000 10000 das4 $conf $Master
+./jenkinsClient.sh jar $(WORKSPACE)/ludograph-dist/src/LudoGraph-dist/target/LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar org.tudelft.ludograph.mock.debug.pregel.Pregel_XML_DEBUG_DRIVER_v2 $(WORKSPACE)/ludograph-dist/src/LudoGraph-dist/target/LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar $NODES 10000 10000 das4 $conf $Master
 
 # ---- "BLOCKING CLIENT" ----
 #get jobID
