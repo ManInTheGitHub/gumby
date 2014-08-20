@@ -20,12 +20,12 @@ echo "JobId: $jobId"
 sleep 5
 
 # get hosts array
-nodesNr=`preserve -llist | grep $USER | awk '{print NF}'`
+nodesNr=`preserve -llist | grep $jobId | awk '{print NF}'`
 let "nodesNr -= 8"
 index=9
 for (( i=0; i<$nodesNr; i++ ))
 do   
-  hosts[$i]=`preserve -llist | grep $USER | awk -v col=$index '{print $col}'`
+  hosts[$i]=`preserve -llist | grep $jobId | awk -v col=$index '{print $col}'`
   let "index += 1"
 done
 
@@ -33,7 +33,7 @@ done
 if [ "${hosts[0]}" == "-" ]
   then
     echo "INSUFFICIENT AMOUNT OF NODES, WILL EXIT"
-    qdel -u $USER
+    qdel -f $jobId
     exit
 fi
 
