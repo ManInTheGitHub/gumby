@@ -46,8 +46,8 @@ sed -i "s/%%MASTER%%/$_HOSTNAME/g" $HADOOP_CONF_YARN
 # Connect to Master -> WARNING can use headNode HADOOP_HOME/bin/start-all // to samo dla stop (plus qdel -u $USER) i client
 ssh $USER@$Master 'bash -s' < ./initYarn.sh $HADOOP_HOME $HADOOP_CONF
 
-echo "@@@ Wait for 50s to allow all nodes to fully start (sometimes there is a little delay)."
-sleep 50
+echo "@@@ Wait for 5s to allow all nodes to fully start (sometimes there is a little delay)."
+sleep 5
 
 echo "Start JOB"
 echo "Currently supports ONLY: BFS, Components, Communities, Stats AND WebGraph, Citation, WikiTalk, amazon_302"

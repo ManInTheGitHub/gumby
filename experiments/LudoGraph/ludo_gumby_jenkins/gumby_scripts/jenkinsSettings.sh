@@ -3,7 +3,7 @@
 echo "###DEBUG jenkinsSettings.sh MIGHT require editing (YARN dist path, JAVA etc.)"
 
 # this is crappy solution SETS PATHS
-export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
+# export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
 # export PATH=$JAVA_HOME/bin:$PATH
 export SCRIPTS="/home/mbiczak/Ludo_Yarn/scripts" # EDIT_ME
 export TEMPLATE="$SCRIPTS/core-site.xml.template"
