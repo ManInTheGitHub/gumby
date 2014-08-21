@@ -36,8 +36,8 @@ done
 if [ "${hosts[0]}" == "-" ]
   then
     echo "INSUFFICIENT AMOUNT OF NODES, WILL EXIT"
-    qdel -f $jobId
-    exit
+    qdel -f $jobId 
+    exit 1
 fi
 
 # create addresses of nodes
