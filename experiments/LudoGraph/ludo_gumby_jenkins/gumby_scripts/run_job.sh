@@ -175,7 +175,7 @@ esac
 ./jenkinsClient.sh dfs -copyFromLocal $dataset_file / 
 
 # run client
-./jenkinsClient.sh jar $(WORKSPACE)/ludograph-dist/src/LudoGraph-dist/target/LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar org.tudelft.ludograph.mock.debug.pregel.Pregel_XML_DEBUG_DRIVER_v2 $(WORKSPACE)/ludograph-dist/src/LudoGraph-dist/target/LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar $NODES 10000 10000 das4 $conf $Master
+./jenkinsClient.sh jar $WORKSPACE/ludograph-dist/src/LudoGraph-dist/target/LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar org.tudelft.ludograph.mock.debug.pregel.Pregel_XML_DEBUG_DRIVER_v2 $WORKSPACE/ludograph-dist/src/LudoGraph-dist/target/LudoGraph-dist-1.0-SNAPSHOT-all-jar.jar $NODES 10000 10000 das4 $conf $Master
 
 # ---- "BLOCKING CLIENT" ----
 #get jobID
