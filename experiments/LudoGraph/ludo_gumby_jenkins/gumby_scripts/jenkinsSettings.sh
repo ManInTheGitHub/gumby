@@ -5,9 +5,8 @@ echo "###DEBUG jenkinsSettings.sh MIGHT require editing (YARN dist path, JAVA et
 # this is crappy solution SETS PATHS
 export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
 # export PATH=$JAVA_HOME/bin:$PATH
-export SCRIPTS="/home/mbiczak/Ludo_Yarn/scripts" # EDIT_ME
-export TEMPLATE="$SCRIPTS/core-site.xml.template"
-export YARN_TEMPLATE="$SCRIPTS/yarn-site.xml.template"
+export TEMPLATE="core-site.xml.template"
+export YARN_TEMPLATE="yarn-site.xml.template"
 
 
 export HADOOP_HOME=${WORKSPACE}/yarn_dist/hadoop-dist/target/hadoop-3.0.0-SNAPSHOT
