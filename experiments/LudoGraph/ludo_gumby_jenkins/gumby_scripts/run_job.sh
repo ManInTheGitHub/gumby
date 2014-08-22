@@ -188,7 +188,7 @@ isTerminated=false
 timeout=600 # 10min timeout per job
 T_S="$(date +%s)"
 
-while [ "$isTerminated" = false ]
+while [ ! "$isTerminated" ]
 do
     sleep 1
     jobsActive=`./jenkinsListJobs.sh 2>/dev/null | grep application_`
