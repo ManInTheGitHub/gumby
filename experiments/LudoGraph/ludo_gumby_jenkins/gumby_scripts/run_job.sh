@@ -191,17 +191,18 @@ T_S="$(date +%s)"
 while [ $isTerminated == "false" ]
 do
     sleep 1
-    jobsActive=`./jenkinsListJobs.sh 2>/dev/null | grep application_`
+    jobsActive=`./jenkinsListJobs.sh 2>/dev/null | grep $jobID`
 
     # check if job is still active
     if [ "$jobsActive" == "" ]
     then
+		echo "Job no longer found... terminating"
 		isTerminated="true"
     fi
 
-    #check timeout
+    # check timeout
     timestamp="$(date +%s)"
-    jobDuration="$(($timestamp-T_S))"
+    jobDuration="$(($timestamp-$T_S))"
     if [ "$jobDuration" -gt "$timeout" ]
     then
 		echo "JOB TIMEOUT !!! (terminating)"
