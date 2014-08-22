@@ -184,7 +184,7 @@ esac
 line=`./jenkinsListJobs.sh 2>/dev/null | sed -n -e '3{p;q}'`
 jobID=( $line )
 echo "jobID: $jobID"
-isTerminated = false
+isTerminated=false
 timeout=600 # 10min timeout per job
 T_S="$(date +%s)"
 
