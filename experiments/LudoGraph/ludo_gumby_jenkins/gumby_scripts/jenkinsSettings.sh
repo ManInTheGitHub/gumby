@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "###DEBUG jenkinsSettings.sh MIGHT require editing (YARN dist path, JAVA etc.)"
+#echo "###DEBUG jenkinsSettings.sh MIGHT require editing (YARN dist path, JAVA etc.)"
 
 # this is crappy solution SETS PATHS
 export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
