@@ -184,11 +184,11 @@ esac
 line=`./jenkinsListJobs.sh 2>/dev/null | grep application_`
 jobID=( $line )
 echo "jobID: $jobID"
-isTerminated=false
+isTerminated="false"
 timeout=600 # 10min timeout per job
 T_S="$(date +%s)"
 
-while [ ! "$isTerminated" ]
+while [ $isTerminated == "false" ]
 do
     sleep 1
     jobsActive=`./jenkinsListJobs.sh 2>/dev/null | grep application_`
@@ -196,7 +196,7 @@ do
     # check if job is still active
     if [ "$jobsActive" == "" ]
     then
-		isTerminated=true
+		isTerminated="true"
     fi
 
     #check timeout
@@ -205,7 +205,7 @@ do
     if [ "$jobDuration" -gt "$timeout" ]
     then
 		echo "JOB TIMEOUT !!! (terminating)"
-		isTerminated=true
+		isTerminated="true"
     fi
 done
 
