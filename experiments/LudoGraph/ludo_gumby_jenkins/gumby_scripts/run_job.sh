@@ -179,11 +179,14 @@ esac
 
 # ---- "BLOCKING CLIENT" ----
 #get jobID
-./jenkinsListJobs.sh
+#./jenkinsListJobs.sh
 
-line=`./jenkinsListJobs.sh 2>/dev/null | sed -n -e '4{p;q}'`
+line=`./jenkinsListJobs.sh 2>/dev/null | sed -n -e '3{p;q}'`
 jobID=( $line )
 echo "jobID: $jobID"
+isTerminated = false
+timeout=600 # 10min timeout per job
+T_S="$(date +%s)"
 
 while [ "$isTerminated" = false ]
 do
@@ -191,7 +194,7 @@ do
     jobsActive=`./jenkinsListJobs.sh 2>/dev/null | wc -l`
 
     # check if job is still active
-    if [ "$jobsActive" -eq "3" ]
+    if [ "$jobsActive" -eq "2" ]
     then
 		isTerminated=true
     fi
