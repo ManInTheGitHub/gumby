@@ -194,7 +194,7 @@ do
     jobsActive=`./jenkinsListJobs.sh 2>/dev/null | grep application_`
 
     # check if job is still active
-    if [ "$jobsActive" -eq "0" ]
+    if [ "$jobsActive" == "" ]
     then
 		isTerminated=true
     fi
