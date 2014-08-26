@@ -4,15 +4,21 @@
 <!-- INPUT and OUTPUT are being overwritten by Pregel_XML_DEBUG_DRIVER, have internal final input/output -->
 <configuration>
     <property>
-        <name>ludograph.job.program</name>
-	<value>org.tudelft.ludograph.mock.debug.pregel.CommunityDetection_TTTT</value>
+		<name>ludograph.job.program</name>
+		<value>org.tudelft.ludograph.mock.debug.pregel.CommunityDetection_TTTT</value>
         <description>Program executed for each PU</description>
     </property>
+
+	<property>
+		<name>ludograph.debug.gumby</name>
+		<value>true</value>
+		<description>"Wraps" job execution in gumby.</description>
+	</property>
     
     <property>
         <name>community_detect.delta</name>
-	<value>0.1</value>
-	<description>End user arg for the program (BFS)</description>
+		<value>0.1</value>
+		<description>End user arg for the program (BFS)</description>
     </property>
 
     <!--
@@ -43,8 +49,8 @@
     </property>
 
     <property>
-        <name>ludograph.input.dfs.path</name>
-	<value>/amazon.302_FCF_TTTT</value>
+		<name>ludograph.input.dfs.path</name>
+		<value>/amazon.302_FCF_TTTT</value>
         <description>Input dataset path (either single file of dir)</description>
     </property>
     

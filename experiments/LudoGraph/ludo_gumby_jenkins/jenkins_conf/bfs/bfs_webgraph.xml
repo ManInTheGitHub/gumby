@@ -9,6 +9,12 @@
         <description>Program executed for each PU</description>
     </property>
 
+	<property>
+		<name>ludograph.debug.gumby</name>
+		<value>true</value>
+		<description>"Wraps" job execution in gumby.</description>
+	</property>
+
     <!--
         I/O
     -->
